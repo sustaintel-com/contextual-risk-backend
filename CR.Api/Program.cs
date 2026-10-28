@@ -38,6 +38,7 @@ builder.Services.AddPooledDbContextFactory<CRContext>(
 
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddSingleton<AuditHistoryInterceptor>();
+builder.Services.AddScoped<IAuditContextProvider, HttpAuditContextProvider>();
 
 // // Register CRContext for direct scoped resolution by Seeder
 // builder.Services.AddScoped<CRContext>(serviceProvider =>
