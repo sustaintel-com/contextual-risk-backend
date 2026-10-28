@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="CR.Api/CR.Api.csproj" />
+  <Project Path="CR.Model/CR.Model.csproj" />
+  <Project Path="CR.Service/CR.Service.csproj" />
+</Solution>
