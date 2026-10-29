@@ -97,8 +97,8 @@ public class CRContext(DbContextOptions<CRContext> options, IPasswordHasher<User
         await GetOrCreateRole("User");
 
         // Default Admin credentials
-        const string username = "admin123";
-        const string password = "1238910";
+        const string username = "CRAdmin";
+        const string password = "CRAdmin@123"; // Change this to a secure password in production
 
         // Check whether the default admin already exists
         var existingUser = await Users

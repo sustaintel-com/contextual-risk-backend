@@ -5,7 +5,7 @@ public record CreateUserDTO(
     string Username,
     string? FullName,
     string Email,
-    string Password,
+    string? Password,
     bool? Active,
     List<IdType>? RoleId,
     List<UserRoleSelectionDto>? Roles,
