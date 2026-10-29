@@ -1,6 +1,5 @@
 using CR.Model.Users;
 using CR.Service.Dtos.User;
-using Microsoft.AspNetCore.Mvc;
 
 namespace CR.Service.Users;
 

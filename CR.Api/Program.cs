@@ -3,6 +3,7 @@ using CR.Api.Audit;
 using CR.Model.Data;
 using CR.Model.Users;
 using CR.Service;
+using CR.Service.Roles;
 using CR.Service.Users;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -42,6 +43,7 @@ builder.Services.AddSingleton<AuditHistoryInterceptor>();
 builder.Services.AddScoped<IAuditContextProvider, HttpAuditContextProvider>();
 
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IRoleService, RoleService>();
 
 // // Register CRContext for direct scoped resolution by Seeder
 // builder.Services.AddScoped<CRContext>(serviceProvider =>

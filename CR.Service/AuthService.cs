@@ -1,7 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using CR.Model;
 using CR.Model.Data;
 using CR.Model.Users;
 using CR.Service.Dtos.User;

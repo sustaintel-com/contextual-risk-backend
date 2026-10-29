@@ -1,5 +1,4 @@
 using CR.Model.Data;
-using CR.Model.Users;
 using CR.Service.Dtos.User;
 using CR.Service.Users;
 using Microsoft.AspNetCore.Authorization;

@@ -1,14 +1,7 @@
 using CR.Model.Data;
 using CR.Model.Users;
 using CR.Service.Dtos.User;
-// using ESG.Model.Data;
-// using ESG.Model.Users;
-// using ESG.Service.Dto;
-// using ESG.Service.Dto.EntityDto;
-// using ESG.Service.Dto.User;
-// using ESG.Service.Repository;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace CR.Service.Users;
@@ -218,8 +211,8 @@ public class UserService(
     {
         await using var context = await _contextFactory.CreateDbContextAsync();
 
-        return await context.Users
-            .Where(user => user.DeletedAt == null)
+        return await context
+            .Users.Where(user => user.DeletedAt == null)
             .OrderBy(user => user.Username)
             .Select(user => new UserDto
             {
@@ -229,8 +222,7 @@ public class UserService(
                 Email = user.Email,
                 Active = user.Active,
                 RoleIds = user.Roles!.Select(role => role.RoleId).ToList(),
-                RoleNames = user.Roles!
-                    .Where(role => role.Name != null)
+                RoleNames = user.Roles!.Where(role => role.Name != null)
                     .Select(role => role.Name!)
                     .ToList(),
                 CreatedBy = user.CreatedBy,

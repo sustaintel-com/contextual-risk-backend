@@ -8,11 +8,9 @@ public record CreateUserDTO(
     string? Password,
     bool? Active,
     List<IdType>? RoleId,
-    List<UserRoleSelectionDto>? Roles,
+    List<RoleDTO>? Roles,
     DateTimeOffset? CreatedAt,
     IdType? CreatedBy,
     IdType? UpdatedBy,
     DateTimeOffset? UpdatedAt
 );
-
-public record UserRoleSelectionDto(IdType? RoleId, string? Name);
