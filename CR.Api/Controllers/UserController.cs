@@ -15,6 +15,14 @@ public class UserController(IUserService UserService, IDbContextFactory<CRContex
 {
     private readonly IUserService _userService = UserService;
 
+    [Authorize(Roles = "Admin")]
+    [HttpGet]
+    public async Task<IActionResult> GetAllUsers()
+    {
+        var users = await _userService.GetAllUsersAsync();
+        return Ok(users);
+    }
+
     [HttpGet("{id}")]
     public async Task<IActionResult> GetUserDetails(IdType id)
     {

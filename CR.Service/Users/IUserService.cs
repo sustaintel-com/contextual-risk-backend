@@ -12,6 +12,7 @@ public interface IUserService
         IdType? createdByID
     );
     Task<User?> GetUserDetails(IdType id);
+    Task<List<UserDto>> GetAllUsersAsync();
 
     // Task<IActionResult> UpdatePasswordAsync(
     //     PasswordResetDto dto,

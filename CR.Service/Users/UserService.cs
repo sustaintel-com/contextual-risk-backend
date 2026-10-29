@@ -214,6 +214,31 @@ public class UserService(
         return result;
     }
 
+    public async Task<List<UserDto>> GetAllUsersAsync()
+    {
+        await using var context = await _contextFactory.CreateDbContextAsync();
+
+        return await context.Users
+            .Where(user => user.DeletedAt == null)
+            .OrderBy(user => user.Username)
+            .Select(user => new UserDto
+            {
+                Id = user.Id,
+                Username = user.Username,
+                FullName = user.FullName,
+                Email = user.Email,
+                Active = user.Active,
+                RoleIds = user.Roles!.Select(role => role.RoleId).ToList(),
+                RoleNames = user.Roles!
+                    .Where(role => role.Name != null)
+                    .Select(role => role.Name!)
+                    .ToList(),
+                CreatedBy = user.CreatedBy,
+                UpdatedBy = user.UpdatedBy,
+            })
+            .ToListAsync();
+    }
+
     // public async Task<IActionResult> UpdatePasswordAsync(
     //     PasswordResetDto dto,
     //     string? updatedBy,
