@@ -8,12 +8,13 @@ namespace CR.Api.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-[Authorize]
+//[Authorize]
 public class RoleController(IRoleService RoleService, IDbContextFactory<CRContext> contextFactory)
     : BaseController(contextFactory)
 {
     private readonly IRoleService _roleService = RoleService;
 
+    [Authorize(Roles = "Admin")]
     [HttpGet]
     public async Task<IActionResult> GetAllRoles()
     {
