@@ -1,5 +1,8 @@
+using System.Security.Claims;
 using CR.Service;
 using CR.Service.Dtos.User;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CR.Api.Controllers;
@@ -28,6 +31,38 @@ public class AuthController : ControllerBase
         var userDetails = await _authService.AllUserAsync(user);
         var token = await _authService.GenerateJSONWebToken(user);
 
-        return Ok(new { user = userDetails, token });
+        var claims = new List<Claim>
+        {
+            new(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new(ClaimTypes.Name, user.Username),
+            new(ClaimTypes.Email, user.Email),
+        };
+
+        claims.AddRange(userDetails.RoleNames.Select(role => new Claim(ClaimTypes.Role, role)));
+
+        var identity = new ClaimsIdentity(
+            claims,
+            CookieAuthenticationDefaults.AuthenticationScheme
+        );
+
+        await HttpContext.SignInAsync(
+            CookieAuthenticationDefaults.AuthenticationScheme,
+            new ClaimsPrincipal(identity),
+            new AuthenticationProperties
+            {
+                IsPersistent = true,
+                ExpiresUtc = DateTimeOffset.UtcNow.AddHours(8),
+                AllowRefresh = true,
+            }
+        );
+
+        return Ok(new { user = userDetails });
+    }
+
+    [HttpPost("logout")]
+    public async Task<IActionResult> Logout()
+    {
+        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        return Ok(new { message = "Logged out successfully" });
     }
 }
