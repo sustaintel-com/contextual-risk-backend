@@ -3,6 +3,7 @@ using CR.Service;
 using CR.Service.Dtos.User;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CR.Api.Controllers;
@@ -51,12 +52,41 @@ public class AuthController : ControllerBase
             new AuthenticationProperties
             {
                 IsPersistent = true,
-                ExpiresUtc = DateTimeOffset.UtcNow.AddHours(8),
-                AllowRefresh = true,
+                // ExpiresUtc = DateTimeOffset.UtcNow.AddHours(8),
+                ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(1),
+                AllowRefresh = false,
+                //AllowRefresh = true,
             }
         );
 
         return Ok(new { user = userDetails });
+    }
+
+    [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
+    [HttpGet("me")]
+    public IActionResult GetCurrentUser()
+    {
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var username = User.FindFirst(ClaimTypes.Name)?.Value;
+        var email = User.FindFirst(ClaimTypes.Email)?.Value;
+
+        var roleNames = User.FindAll(ClaimTypes.Role).Select(x => x.Value).ToList();
+
+        if (string.IsNullOrEmpty(userId))
+            return Unauthorized();
+
+        return Ok(
+            new
+            {
+                user = new
+                {
+                    id = userId,
+                    username,
+                    email,
+                    roleNames,
+                },
+            }
+        );
     }
 
     [HttpPost("logout")]

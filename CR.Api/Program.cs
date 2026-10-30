@@ -72,59 +72,107 @@ builder.Services.AddCors(options =>
 
 // Authentication setup. Cookie authentication is used by default, while the
 // policy scheme keeps existing Bearer-token clients working as well.
-var jwtKey = builder.Configuration["Jwt:Key"];
-if (string.IsNullOrEmpty(jwtKey))
-{
-    throw new InvalidOperationException("JWT key is not configured.");
-}
+// var jwtKey = builder.Configuration["Jwt:Key"];
+// if (string.IsNullOrEmpty(jwtKey))
+// {
+//     throw new InvalidOperationException("JWT key is not configured.");
+// }
+
+// builder
+//     .Services.AddAuthentication(options =>
+//     {
+//         options.DefaultAuthenticateScheme = "SmartAuthentication";
+//         options.DefaultChallengeScheme = "SmartAuthentication";
+//     })
+//     .AddPolicyScheme("SmartAuthentication", "Cookie or JWT", options =>
+//     {
+//         options.ForwardDefaultSelector = context =>
+//         {
+//             var authorization = context.Request.Headers.Authorization.ToString();
+//             return authorization.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase)
+//                 ? JwtBearerDefaults.AuthenticationScheme
+//                 : CookieAuthenticationDefaults.AuthenticationScheme;
+//         };
+//     })
+//     .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
+//     {
+//         options.Cookie.Name = "contextual-risk-auth";
+//         options.Cookie.HttpOnly = true;
+//         options.Cookie.SameSite = SameSiteMode.Lax;
+//         options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+//         options.ExpireTimeSpan = TimeSpan.FromHours(8);
+//         options.SlidingExpiration = true;
+//         options.Events.OnRedirectToLogin = context =>
+//         {
+//             context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+//             return Task.CompletedTask;
+//         };
+//         options.Events.OnRedirectToAccessDenied = context =>
+//         {
+//             context.Response.StatusCode = StatusCodes.Status403Forbidden;
+//             return Task.CompletedTask;
+//         };
+//     })
+//     .AddJwtBearer(options =>
+//     {
+//         options.IncludeErrorDetails = true;
+//         options.TokenValidationParameters = new TokenValidationParameters
+//         {
+//             ValidateIssuer = false,
+//             ValidateAudience = false,
+//             ValidateLifetime = false,
+//             ValidateIssuerSigningKey = false,
+//             ValidIssuer = builder.Configuration["Jwt:Issuer"],
+//             ValidAudience = builder.Configuration["Jwt:Audience"],
+//             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+//         };
+//     });
 
 builder
     .Services.AddAuthentication(options =>
     {
-        options.DefaultAuthenticateScheme = "SmartAuthentication";
-        options.DefaultChallengeScheme = "SmartAuthentication";
+        options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+
+        options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+
+        options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
     })
-    .AddPolicyScheme("SmartAuthentication", "Cookie or JWT", options =>
-    {
-        options.ForwardDefaultSelector = context =>
-        {
-            var authorization = context.Request.Headers.Authorization.ToString();
-            return authorization.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase)
-                ? JwtBearerDefaults.AuthenticationScheme
-                : CookieAuthenticationDefaults.AuthenticationScheme;
-        };
-    })
-    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
+    .AddCookie(options =>
     {
         options.Cookie.Name = "contextual-risk-auth";
+
         options.Cookie.HttpOnly = true;
+
+        options.Cookie.IsEssential = true;
+
         options.Cookie.SameSite = SameSiteMode.Lax;
+
         options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
-        options.ExpireTimeSpan = TimeSpan.FromHours(8);
-        options.SlidingExpiration = true;
-        options.Events.OnRedirectToLogin = context =>
+
+        // Cookie expires after 8 hours.
+        //options.ExpireTimeSpan = TimeSpan.FromHours(8);
+
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(1);
+
+        // Refresh expiration during active usage.
+        // options.SlidingExpiration = true;
+        options.SlidingExpiration = false;
+
+        options.Events = new CookieAuthenticationEvents
         {
-            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-            return Task.CompletedTask;
-        };
-        options.Events.OnRedirectToAccessDenied = context =>
-        {
-            context.Response.StatusCode = StatusCodes.Status403Forbidden;
-            return Task.CompletedTask;
-        };
-    })
-    .AddJwtBearer(options =>
-    {
-        options.IncludeErrorDetails = true;
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = false,
-            ValidateAudience = false,
-            ValidateLifetime = false,
-            ValidateIssuerSigningKey = false,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+            OnRedirectToLogin = context =>
+            {
+                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+
+                return Task.CompletedTask;
+            },
+
+            OnRedirectToAccessDenied = context =>
+            {
+                context.Response.StatusCode = StatusCodes.Status403Forbidden;
+
+                return Task.CompletedTask;
+            },
         };
     });
 
